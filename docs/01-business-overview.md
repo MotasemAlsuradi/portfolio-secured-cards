@@ -138,21 +138,23 @@ The monitoring process must avoid duplicate enforcement and log processing failu
 
 ### 5. Business Rules Summary
 
+> **Reference note:** `BO-xx` identifiers are local to this high-level overview. For authoritative Business Rule (`BR-xx`) and Acceptance Criteria (`AC-xx`) identifiers, refer to [`02-requirements.md`](02-requirements.md).
+
 | ID | Business Rule |
 |---|---|
-| BR-01 | A customer can own multiple investment portfolios. |
-| BR-02 | Investment portfolios support Basic, Plus, and Premium types. |
-| BR-03 | A portfolio can have multiple liens. |
-| BR-04 | A lien cannot exceed the available portfolio value. |
-| BR-05 | Total unreleased liens cannot exceed the portfolio's total value. |
-| BR-06 | A credit card can only be issued after successful lien creation. |
-| BR-07 | A card's credit limit cannot exceed its lien amount. |
-| BR-08 | Card utilization cannot exceed the credit limit. |
-| BR-09 | Portfolio redemption cannot exceed the available non-liened value. |
-| BR-10 | A lien can be released only when its associated card is closed. |
-| BR-11 | Full credit utilization places the card at risk of delinquency. |
-| BR-12 | A fully utilized card that remains unpaid beyond the configured period becomes delinquent. |
-| BR-13 | Delinquency enforcement freezes the associated portfolio and blocks further prohibited card transactions. |
+| BO-01 | A customer can own multiple investment portfolios. |
+| BO-02 | Investment portfolios support Basic, Plus, and Premium types. |
+| BO-03 | A portfolio can have multiple liens. |
+| BO-04 | A lien cannot exceed the available portfolio value. |
+| BO-05 | Total unreleased liens cannot exceed the portfolio's total value. |
+| BO-06 | A credit card can only be issued after successful lien creation. |
+| BO-07 | A card's credit limit cannot exceed its lien amount. |
+| BO-08 | Card utilization cannot exceed the credit limit. |
+| BO-09 | Portfolio redemption cannot exceed the available non-liened value. |
+| BO-10 | A lien can be released only when its associated card is closed. |
+| BO-11 | Full credit utilization places the card at risk of delinquency. |
+| BO-12 | A fully utilized card that remains unpaid beyond the configured period becomes delinquent. |
+| BO-13 | Delinquency enforcement freezes the associated portfolio and blocks further prohibited card transactions. |
 
 ### 6. Scope Boundaries
 

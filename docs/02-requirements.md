@@ -3,7 +3,7 @@
 **Project:** Portfolio Secured Cards  
 **Module:** Investment-Backed Credit Card  
 **Phase:** 02 — Requirements Analysis  
-**Status:** Ready for Domain Design (subject to implementation-level choices in Phase 03/04)  
+**Status:** Phase 02 finalized — aligned with Phase 03; implementation choices remain for Phase 04  
 **Scope:** One simulated secured-credit module, not a production banking system.
 
 > **Source precedence:** **[Spec]** means an explicit requirement from the supplied *Net Coding Test.pdf* and is mandatory. **[Decision]** means a deliberate implementation choice for this simulation. **[Optional]** means a good-to-have or extension.
@@ -78,12 +78,12 @@ Payment gateways, interest calculation, real authentication, external integratio
 | BR-16 | A frozen portfolio rejects redemption, creation of new liens/cards, and **new card usage on all associated cards**. It still permits repayment and eligible card closure. | D6 |
 | BR-17 | Repayment does not automatically change a `Delinquent` card's status or unfreeze its portfolio. Upon closing the **last associated Delinquent card**, the portfolio returns to `Active`, since delinquency is the sole freeze cause modeled here. | D6 |
 | BR-18 | The delinquency job is idempotent: skips already-delinquent cards, avoids duplicate state/audit changes, isolates per-card failures where possible, and logs failures. | Spec + D10 |
-| BR-19 | Utilization changes must be traceable; an append-only audit log for lien/card/portfolio changes is included as a targeted good-to-have. | Spec + D10 |
+| BR-19 | **Every successful card usage must be recorded** with `CardId`, usage amount, utilized amount before/after, and timestamp. Rejected usage must not create a history record. Audit entries for other operations remain optional. | Spec + D10 |
 | BR-20 | Monetary amounts use `decimal` with the modeled currency precision and positive-value validation. | Decision |
 
 ### Credit-limit rule
 
-The mandatory rule is **`0 < Credit Limit ≤ Lien Amount`**. In this simulation, the applicant can specify the requested credit limit alongside the portfolio and lien amount; the system validates the limit without any fixed percentage. Adding that input is a **[Decision]**, since the assignment explicitly lists only portfolio and lien amount as user-selected fields.
+The mandatory rule is **`0 < Credit Limit ≤ Lien Amount`**. In this simulation, the applicant can specify the requested credit limit alongside the portfolio and lien amount. **The Angular form defaults the requested limit to the entered lien amount**, but permits lowering it; the backend validates and sets the final limit without any fixed percentage. Exposing an editable limit is a **[Decision]**, since the assignment explicitly lists only portfolio and lien amount as user-selected fields.
 
 **Example (AED):** A lien of `10,000.00` may secure a credit limit of `8,000.00` or `10,000.00`, but not `12,000.00`.
 
@@ -131,7 +131,7 @@ A lien stays unreleased while a card is Delinquent. No separate early lien-relea
 
 ### UC-002 — Issue Secured Credit Card *(Command)*
 
-- **AC-04:** On an Active portfolio, given `0 < Lien Amount ≤ Available` and `0 < Credit Limit ≤ Lien Amount`, create a lien and an Active card together; initialize utilization to zero, generate a card number, and apply the validated requested limit.
+- **AC-04:** On an Active portfolio, given `0 < Lien Amount ≤ Available` and `0 < Credit Limit ≤ Lien Amount`, create a lien and an Active card together; initialize utilization to zero, generate a card number, and apply the validated requested limit. In the issuance form, prefill the requested credit limit from the lien amount while allowing a smaller value.
 - **AC-05:** Reject zero/negative/excessive lien amounts, invalid credit limits (`≤ 0` or `> lien`), or a Frozen portfolio; leave balances and issuance records unchanged.
 - **AC-06:** A failed issuance must not leave a usable orphaned card or orphaned unreleased lien; document test-storage limitations (D8).
 - **AC-07:** Creating several liens is allowed until Available Value is exhausted; every card has its own lien.
@@ -140,7 +140,7 @@ A lien stays unreleased while a card is Delinquent. No separate early lien-relea
 
 - **AC-08:** Positive usage within Available Credit increases Utilized Amount; exact use of the remaining credit is allowed.
 - **AC-09:** Negative/zero usage, over-limit usage, non-Active cards, or cards on Frozen portfolios are rejected without changing utilization.
-- **AC-10:** When the utilization reaches the full credit limit, record `FullyUtilizedSince`; usage history/audit records the change.
+- **AC-10:** When utilization reaches the full credit limit, record `FullyUtilizedSince`. **Every successful usage** persists a history entry with `CardId`, amount, utilized-before, utilized-after, and timestamp; rejected usage writes no history entry.
 
 ### UC-004 — Redeem Portfolio Value *(Command)*
 
@@ -192,10 +192,11 @@ A lien stays unreleased while a card is Delinquent. No separate early lien-relea
 | TR-07 | **Angular module-based** frontend (NgModules; avoid standalone-only app). | Spec — Mandatory |
 | TR-08 | Angular **Reactive Forms** for user input. | Spec — Mandatory |
 | TR-09 | Domain-level enforcement of redemption restrictions. | Spec — Mandatory |
-| TR-10 | Audit trail for lien and card usage. | Spec — Good to Have |
-| TR-11 | Global API exception handling. | Spec — Good to Have |
-| TR-12 | Unit tests for financial invariants, use cases, and job idempotency. | Decision — Delivery Quality |
-| TR-13 | Backend API, Angular UI, and concise README with setup/test steps; deliver via GitHub repository. | Assignment email / Delivery |
+| TR-10 | **Card-usage change tracking** with amount, before/after utilization and timestamp. | Spec — Mandatory (functional flow) |
+| TR-11 | Extended audit trail for lien and other card/portfolio events. | Spec — Good to Have |
+| TR-12 | Global API exception handling. | Spec — Good to Have |
+| TR-13 | Unit tests for financial invariants, use cases, and job idempotency. | Decision — Delivery Quality |
+| TR-14 | Backend API, Angular UI, and concise README with setup/test steps; deliver via GitHub repository. | Assignment email / Delivery |
 
 **Hangfire storage [Pending implementation choice]:** The requirement specifies EF Core In-Memory **for the module data**, not Hangfire's job storage. Select and verify a compatible Hangfire storage provider during Phase 04. If volatile, clearly document restart behavior. Do not claim EF Core In-Memory provides Hangfire storage.
 
@@ -211,10 +212,10 @@ A lien stays unreleased while a card is Delinquent. No separate early lien-relea
 | D4 | Use a minimal repayment command instead of a payment gateway. | Accepted |
 | D5 | Track `FullyUtilizedSince`, reset after repayment below limit, and use configurable threshold plus testable time source. | Accepted |
 | D6 | Represent Portfolio with `PortfolioStatus { Active, Frozen }`; delinquency freezes, while repayments and eligible closes remain allowed; unfreeze after the last Delinquent card closes. | Accepted |
-| D7 | Enforce `0 < Credit Limit ≤ Lien Amount` with no fixed percentage. The user may specify the requested limit as an additional issuance input. | Accepted |
+| D7 | Enforce `0 < Credit Limit ≤ Lien Amount` with no fixed percentage. The Angular form defaults the requested limit to the lien amount but permits a smaller requested limit; the backend validates and sets it. | Accepted |
 | D8 | Coordinate lien creation and card issuance as one application operation/save boundary; handle failures; document EF In-Memory transaction/concurrency limitations. | Accepted |
 | D9 | Optional manual Block/Unblock commands; never unblock a Delinquent/Closed card. | Proposed / Low priority |
-| D10 | Lightweight append-only audit entries to record lien, card usage, redemption, closure, freeze/unfreeze; no Event Sourcing. | Accepted if feasible within delivery |
+| D10 | **Mandatory append-only card-usage history** captures card, amount, utilized-before/after and timestamp; an extended audit trail for lien, repayment, redemption, closure and freeze/unfreeze is optional. No Event Sourcing. | Accepted (usage history); optional (extended audit) |
 | D11 | Generate synthetic unique card numbers; mask all customer-facing responses. A 16-digit Luhn-valid format is optional. | Proposed |
 | D12 | Seed several customers for demonstration; no authentication. | Accepted |
 
@@ -225,8 +226,8 @@ A lien stays unreleased while a card is Delinquent. No separate early lien-relea
 
 | Priority | Deliverables |
 |---|---|
-| **P0 — Mandatory** | UC-001 to UC-006; mandatory tech stack; strict CQRS; correct domain rules; Angular module-based screens with Reactive Forms; Hangfire scan, idempotency and failure logging. |
-| **P1 — Lifecycle & quality** | UC-007 simulated repayment; UC-008 close/release; core domain/unit tests; audit trail where practical; global exception handling; complete README. |
+| **P0 — Mandatory** | UC-001 to UC-006; **persisted card-usage history (BR-19 / AC-10 / D10)**; mandatory tech stack; strict CQRS; correct domain rules; Angular module-based screens with Reactive Forms; Hangfire scan, idempotency and failure logging. |
+| **P1 — Lifecycle & quality** | UC-007 simulated repayment; UC-008 close/release; core domain/unit tests; **extended audit trail** where practical; global exception handling; complete README. |
 | **P2 — Extras** | Manual Block/Unblock, additional integration/edge testing, sophisticated concurrency implementation, advanced card-number formatting. |
 
 **Implementation order:** Domain rules and tests → application commands/queries → persistence/API → Hangfire → Angular → end-to-end verification and README. Documentation evolves alongside the code.
