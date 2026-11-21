@@ -1,0 +1,10 @@
+﻿
+namespace PortfolioSecuredCards.Application;
+
+public sealed class AssemblyReference
+{
+    private AssemblyReference()
+    {
+
+    }
+}
