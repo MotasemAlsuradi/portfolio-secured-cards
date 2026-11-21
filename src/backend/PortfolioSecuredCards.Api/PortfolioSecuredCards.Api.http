@@ -1,0 +1,6 @@
+@PortfolioSecuredCards.Api_HostAddress = http://localhost:5093
+
+GET {{PortfolioSecuredCards.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
