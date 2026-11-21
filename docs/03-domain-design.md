@@ -3,7 +3,7 @@
 **Project:** Portfolio Secured Cards  
 **Module:** Investment-Backed Credit Card  
 **Phase:** 03 — Domain Design  
-**Status:** Finalized Phase 03 design baseline (v3) — implementation details to be verified in code and tests  
+**Status:** Finalized Phase 03 design baseline — implementation details to be verified in code and tests  
 **Related documents:** [01 — Business Overview](01-business-overview.md) · [02 — Requirements & Decisions](02-requirements.md)
 
 > **Scope and precedence:** This design implements the simulated secured-credit module described in the coding assignment. The assignment is authoritative for mandatory behavior; refinements such as simplified repayment, closure and unfreezing come from the accepted decisions in `02-requirements.md`. No real banking integration, billing engine, or collateral liquidation is modeled.
@@ -208,13 +208,13 @@ A lien cannot be released because the card is merely Blocked, fully utilized, re
 ### 5.3 CreditCard
 
 ```text
-                       ┌──> Blocked ──> Active  [manual, optional]
-                       │        │
+                        ┌──> Blocked ──> Active  [manual, optional]
+                        │        │
 Issue ──> Active ───────┤        └───────────────┐
-                       └──> Delinquent ─────────┤
-                               │                │
+                        └──> Delinquent ─────────┤
+                                │                │
 Active (with zero utilization) ─┼───────────────> Closed
-                               └── if zero ─────┘
+                                └── if zero ─────┘
 ```
 
 `Closed` is terminal. Eligible closure from Active, Blocked or Delinquent requires `UtilizedAmount == 0`. A second `Close` request is rejected with `CardAlreadyClosed` (AC-25); there is no duplicate lien release or audit event.
@@ -389,5 +389,3 @@ Follow the full acceptance criteria in `02-requirements.md` (AC-01 through AC-27
 - [x] Financial invariants separated from cross-aggregate policies.
 - [x] Issuance, usage, redemption, delinquency, repayment and closure flows documented.
 - [ ] Verify design choices with compiling Domain implementation and focused unit tests during development.
-
-**Next:** Phase 04 — Solution Architecture and CQRS/Infrastructure design, then implementation guided by this baseline.
