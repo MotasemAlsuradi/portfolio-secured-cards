@@ -74,6 +74,19 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(
         typeof(PortfolioSecuredCards.Application.AssemblyReference).Assembly));
 
+const string CorsPolicy = "AngularClient";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicy, policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Seed demo customers and portfolios.
@@ -112,6 +125,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors(CorsPolicy);
 
 app.UseAuthorization();
 
