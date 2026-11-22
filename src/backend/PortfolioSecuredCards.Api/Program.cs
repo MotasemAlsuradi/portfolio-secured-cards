@@ -1,4 +1,6 @@
 
+using PortfolioSecuredCards.Api.Identity;
+using PortfolioSecuredCards.Application.Abstractions.Identity;
 using PortfolioSecuredCards.Infrastructure;
 using PortfolioSecuredCards.Infrastructure.Persistence;
 
@@ -6,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Register Infrastructure services (DbContext, Repositories, and Unit of Work).
 builder.Services.AddInfrastructure();
+
+// Current Customer
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentCustomer, CurrentCustomer>();
 
 // Controllers
 builder.Services.AddControllers();

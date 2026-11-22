@@ -39,8 +39,8 @@ public sealed class CreditCardRepository : ICreditCardRepository
             .AnyAsync(
                 card =>
                     card.PortfolioId == portfolioId &&
-                    card.Id == excludingCardId &&
-                    card.Status == CreditCardStatus.Active,
+                    card.Id != excludingCardId &&
+                    card.Status == CreditCardStatus.Delinquent,
                 cancellationToken);
     }
 

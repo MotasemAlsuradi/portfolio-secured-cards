@@ -16,6 +16,7 @@ public sealed class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Portfolio> Portfolios => Set<Portfolio>();
     public DbSet<Lien> Liens => Set<Lien>();
     public DbSet<CreditCard> CreditCards => Set<CreditCard>();
+    public DbSet<CardUsageHistory> CardUsageHistories => Set<CardUsageHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
