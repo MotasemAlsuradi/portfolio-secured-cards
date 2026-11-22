@@ -32,6 +32,10 @@ public sealed class PortfoliosController : ControllerBase
     }
 
     [HttpPost("{portfolioId:guid}/redeem")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Redeem(Guid portfolioId, [FromBody] RedeemPortfolioRequest request, CancellationToken cancellationToken)
     {
         var availableValue = await _sender.Send(

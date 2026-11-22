@@ -3,6 +3,7 @@ using Hangfire;
 using Hangfire.Dashboard;
 using Microsoft.OpenApi.Models;
 using PortfolioSecuredCards.Api.BackgroundJobs;
+using PortfolioSecuredCards.Api.ExceptionHandling;
 using PortfolioSecuredCards.Api.Identity;
 using PortfolioSecuredCards.Application.Abstractions.Identity;
 using PortfolioSecuredCards.Application.Configuration;
@@ -38,6 +39,10 @@ builder.Services.AddTransient<DelinquencyScanJob>();
 
 // Controllers
 builder.Services.AddControllers();
+
+// Global Exception Handling
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -88,6 +93,8 @@ recurringJobManager.AddOrUpdate<DelinquencyScanJob>(
     "credit-card-delinquency-scan",
     job => job.ExecuteAsync(),
     Cron.Hourly());
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

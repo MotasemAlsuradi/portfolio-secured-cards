@@ -10,6 +10,7 @@ public sealed class LienConfiguration : IEntityTypeConfiguration<Lien>
     public void Configure(EntityTypeBuilder<Lien> builder)
     {
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Property(x => x.Amount)
             .IsRequired();
