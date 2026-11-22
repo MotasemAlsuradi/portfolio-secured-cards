@@ -29,6 +29,7 @@ public sealed class RunDelinquencyScanCommandHandler : IRequestHandler<RunDelinq
         var cards = await _creditCardRepository.GetFullyUtilizedActiveCardsAsync(cancellationToken);
 
         var delinquentCount = 0;
+        var failedCount = 0;
 
         foreach (var cardId in cards.Select(card => card.Id).ToList())
         {
@@ -50,11 +51,24 @@ public sealed class RunDelinquencyScanCommandHandler : IRequestHandler<RunDelinq
             }
             catch (Exception ex)
             {
+                failedCount++;
+
                 _logger.LogError(
-                    ex, 
-                    "Failed to process delinquency for card {CardId}.", 
+                    ex,
+                    "Failed to process delinquency for card {CardId}.",
                     cardId);
             }
+        }
+
+        _logger.LogInformation(
+            "Delinquency scan completed. Marked: {MarkedCount}, Failed: {FailedCount}.",
+            delinquentCount,
+            failedCount);
+
+        if (failedCount > 0)
+        {
+            throw new InvalidOperationException(
+                $"Delinquency scan completed with {failedCount} failed card(s).");
         }
 
         return delinquentCount;
