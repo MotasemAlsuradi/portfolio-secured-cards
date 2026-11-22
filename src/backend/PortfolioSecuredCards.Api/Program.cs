@@ -1,6 +1,7 @@
 
 using Hangfire;
 using Hangfire.Dashboard;
+using Microsoft.OpenApi.Models;
 using PortfolioSecuredCards.Api.BackgroundJobs;
 using PortfolioSecuredCards.Api.Identity;
 using PortfolioSecuredCards.Application.Abstractions.Identity;
@@ -40,7 +41,28 @@ builder.Services.AddControllers();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("CustomerId", new OpenApiSecurityScheme
+    {
+        Name = "X-Demo-Customer-Id",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Description = "Customer Id (get it from GET /api/customers)"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "CustomerId" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 
 // MediatR
 builder.Services.AddMediatR(cfg =>
