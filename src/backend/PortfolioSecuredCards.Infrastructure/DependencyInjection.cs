@@ -2,10 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PortfolioSecuredCards.Application.Abstractions.Persistence;
+using PortfolioSecuredCards.Application.Abstractions.Processing;
 using PortfolioSecuredCards.Application.Abstractions.Queries;
 using PortfolioSecuredCards.Infrastructure.Persistence;
 using PortfolioSecuredCards.Infrastructure.ReadServices;
 using PortfolioSecuredCards.Infrastructure.Repositories;
+using PortfolioSecuredCards.Infrastructure.Services;
 
 namespace PortfolioSecuredCards.Infrastructure;
 
@@ -29,6 +31,9 @@ public static class DependencyInjection
         services.AddScoped<ICustomerReadService, CustomerReadService>();
         services.AddScoped<IPortfolioReadService, PortfolioReadService>();
         services.AddScoped<ICreditCardReadService, CreditCardReadService>();
+
+        // Background Processing Services
+        services.AddScoped<ICardDelinquencyProcessor, CardDelinquencyProcessor>();
 
         // System Clock
         services.AddSingleton(TimeProvider.System);
