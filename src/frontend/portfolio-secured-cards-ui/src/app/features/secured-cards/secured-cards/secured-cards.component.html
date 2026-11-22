@@ -1,0 +1,86 @@
+<div class="container">
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <h1>Investment-Backed Credit Cards</h1>
+    <p>Manage investment portfolios and secured credit cards.</p>
+  </header>
+
+  <!-- Customer Selection & Delinquency Monitoring -->
+  <section class="top-panel">
+
+    <!-- Left: Customer Selection -->
+    <div class="customer-selection">
+
+      <h2>Select Customer</h2>
+
+      <p>
+        Select a customer to view investment portfolios and credit cards.
+      </p>
+
+      <select
+        id="customer"
+        #customerSelect
+        aria-label="Select Customer"
+        [value]="selectedCustomerId ?? ''"
+        (change)="selectCustomer(customerSelect.value)">
+
+        <option value="">-- Select Customer --</option>
+
+        <option
+          *ngFor="let customer of customers"
+          [value]="customer.id">
+          {{ customer.fullName }}
+        </option>
+
+      </select>
+
+      <p *ngIf="errorMessage" class="error">
+        {{ errorMessage }}
+      </p>
+
+    </div>
+
+    <!-- Right: Delinquency Monitoring -->
+    <div class="delinquency-monitoring">
+
+      <h2>Delinquency Monitoring</h2>
+
+      <p>
+        Run a system-wide scan to identify fully utilized credit cards
+        that have exceeded the configured delinquency threshold.
+      </p>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="scanning"
+        (click)="runDelinquencyScan()">
+
+        {{ scanning ? 'Scanning...' : 'Run Delinquency Scan' }}
+
+      </button>
+
+      <p *ngIf="scanMessage" class="success">
+        {{ scanMessage }}
+      </p>
+
+      <p *ngIf="scanError" class="error">
+        {{ scanError }}
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- Investment Portfolios -->
+  <app-portfolio-list
+    *ngIf="selectedCustomerId">
+  </app-portfolio-list>
+
+  <!-- Credit Cards -->
+  <app-credit-card-list
+    *ngIf="selectedCustomerId">
+  </app-credit-card-list>
+
+</div>

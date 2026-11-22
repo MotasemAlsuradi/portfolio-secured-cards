@@ -1,0 +1,217 @@
+<section class="credit-cards-section">
+
+  <h2>Credit Cards</h2>
+
+  <button
+    type="button"
+    class="btn btn-secondary"
+    (click)="loadCards()">
+    Refresh Cards
+  </button>
+
+  <!-- Messages -->
+
+  <p *ngIf="successMessage" class="success">
+    {{ successMessage }}
+  </p>
+
+  <p *ngIf="errorMessage && !selectedAction" class="error">
+    {{ errorMessage }}
+  </p>
+
+  <p *ngIf="cards.length === 0 && !errorMessage">
+    No credit cards found.
+  </p>
+
+  <!-- Cards Table -->
+
+  <table *ngIf="cards.length > 0">
+    <thead>
+      <tr>
+        <th>Card Number</th>
+        <th>Credit Limit</th>
+        <th>Utilized Amount</th>
+        <th>Available Credit</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let card of cards">
+
+        <td>{{ card.maskedCardNumber }}</td>
+
+        <td>{{ card.creditLimit | number:'1.2-2' }}</td>
+
+        <td>{{ card.utilizedAmount | number:'1.2-2' }}</td>
+
+        <td>{{ card.availableCredit | number:'1.2-2' }}</td>
+
+        <td>
+          <span
+            class="status"
+            [class.active]="card.status === 1"
+            [class.delinquent]="card.status === 3"
+            [class.closed]="card.status === 4">
+
+            {{ cardStatus(card.status) }}
+
+          </span>
+        </td>
+
+        <td class="actions">
+
+          <!-- Use -->
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="card.status !== 1 || card.availableCredit <= 0 || submitting"
+            (click)="openAction(card, 'use')">
+            Use
+          </button>
+
+          <!-- Repay -->
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="card.status === 4 || card.utilizedAmount <= 0 || submitting"
+            (click)="openAction(card, 'repay')">
+            Repay
+          </button>
+
+          <!-- Close -->
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="card.status === 4 || card.utilizedAmount > 0 || submitting"
+            (click)="closeCard(card)">
+            Close
+          </button>
+
+          <!-- History -->
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="toggleHistory(card.id)">
+            {{ historyCardId === card.id ? 'Hide History' : 'History' }}
+          </button>
+
+        </td>
+
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Use / Repay Form -->
+
+  <div
+    *ngIf="selectedCard && selectedAction"
+    class="action-panel">
+
+    <h3>
+      {{ selectedAction === 'use' ? 'Use Credit Card' : 'Repay Credit Card' }}
+    </h3>
+
+    <p>Card: {{ selectedCard.maskedCardNumber }}</p>
+
+    <p *ngIf="selectedAction === 'use'">
+      Available Credit:
+      {{ selectedCard.availableCredit | number:'1.2-2' }}
+    </p>
+
+    <p *ngIf="selectedAction === 'repay'">
+      Outstanding Amount:
+      {{ selectedCard.utilizedAmount | number:'1.2-2' }}
+    </p>
+
+    <form [formGroup]="actionForm" (ngSubmit)="submitAction()">
+
+      <div class="form-group">
+        <label for="cardAmount">Amount</label>
+
+        <input
+          id="cardAmount"
+          type="number"
+          min="0.01"
+          step="0.01"
+          formControlName="amount">
+      </div>
+
+      <p *ngIf="errorMessage" class="error">
+        {{ errorMessage }}
+      </p>
+
+      <div class="form-actions">
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="actionForm.invalid || submitting">
+
+          {{ selectedAction === 'use' ? 'Confirm Usage' : 'Confirm Repayment' }}
+
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="submitting"
+          (click)="cancelAction()">
+          Cancel
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+  <!-- Usage History -->
+
+  <div *ngIf="historyCardId" class="action-panel">
+
+    <h3>Card Usage History</h3>
+
+    <p *ngIf="loadingHistory">
+      Loading history...
+    </p>
+
+    <p *ngIf="!loadingHistory && usageHistory.length === 0">
+      No usage history found.
+    </p>
+
+    <table *ngIf="!loadingHistory && usageHistory.length > 0">
+
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Before</th>
+          <th>After</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let item of usageHistory">
+
+          <td>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+
+          <td>{{ item.amount | number:'1.2-2' }}</td>
+
+          <td>{{ item.utilizedBefore | number:'1.2-2' }}</td>
+
+          <td>{{ item.utilizedAfter | number:'1.2-2' }}</td>
+
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>

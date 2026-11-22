@@ -1,0 +1,71 @@
+/* Top Panel */
+.top-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Customer Selection */
+.customer-selection {
+  padding-right: 16px;
+}
+
+/* Delinquency Monitoring */
+.delinquency-monitoring {
+  border-left: 1px solid #e2e8f0;
+  padding-left: 32px;
+}
+
+/* Section Titles */
+.top-panel h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #172b4d;
+  margin: 0 0 12px;
+}
+
+/* Descriptions */
+.top-panel p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+  min-height: 44px;
+}
+
+/* Customer Dropdown */
+.customer-selection select {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Scan Button */
+.delinquency-monitoring .btn {
+  min-height: 42px;
+}
+
+/* Messages */
+.top-panel .success,
+.top-panel .error {
+  margin: 14px 0 0;
+  min-height: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .top-panel {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .customer-selection {
+    padding-right: 0;
+  }
+
+  .delinquency-monitoring {
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+    padding-left: 0;
+    padding-top: 24px;
+  }
+}
